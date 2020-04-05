@@ -6,7 +6,7 @@ public class CoAuthor {
 private Author autore;
 private List <Author> Coautori;
 public CoAuthor(Author autore, List<Author> coautori) {
-	super();
+	
 	this.autore = autore;
 	Coautori = coautori;
 }

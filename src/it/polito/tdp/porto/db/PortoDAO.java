@@ -4,9 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import it.polito.tdp.porto.model.Author;
+import it.polito.tdp.porto.model.CoAuthor;
 import it.polito.tdp.porto.model.Paper;
 
 public class PortoDAO {
@@ -69,4 +72,33 @@ public class PortoDAO {
 			throw new RuntimeException("Errore Db");
 		}
 	}
+	public CoAuthor getCoAutori(Map <Integer ,Author> mappaA, Author autore) {
+
+		final String sql = "SELECT c2.authorid " + 
+				"FROM creator AS c1, creator AS c2 " + 
+				"WHERE c1.authorid='?' AND c1.eprintid=c2.eprintid AND c1.authorid!= c2.authorid ";
+		
+            
+		try {
+			if (mappaA.containsKey(autore.getId())) {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, autore.getId());
+            List <Author> listaC = new LinkedList<Author>();
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				if (mappaA.containsKey(rs.getInt("authorid"))) {
+					listaC.add(mappaA.get(rs.getInt("authorid")));
+				}
+			}
+            CoAuthor c = new CoAuthor (autore, listaC);
+			return c;} else return null;
+
+		} catch (SQLException e) {
+			 e.printStackTrace();
+			throw new RuntimeException("Errore Db");
+		}
+	}
+	
 }
