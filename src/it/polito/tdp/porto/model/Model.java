@@ -11,7 +11,7 @@ public class Model {
    private List <Author> listaA;
    private Map <Integer , Paper> mappaP;
    private List <Paper> listaP;
-   private Map <CoAuthor> mappaC;
+   private Map <Author, CoAuthor> mappaC;
 public Model() {
 	PortoDAO dao = new PortoDAO();
   mappaA= dao.getAutori(mappaA);
