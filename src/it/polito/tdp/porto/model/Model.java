@@ -19,6 +19,7 @@ public Model() {
   mappaP = dao.getArticoli(mappaP);
   listaP = new LinkedList<>(mappaP.values());
 }
+
    
 
 
