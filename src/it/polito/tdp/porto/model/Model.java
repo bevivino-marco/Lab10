@@ -20,4 +20,5 @@ public Model() {
   listaP = new LinkedList<>(mappaP.values());
 }
    
+
 }
