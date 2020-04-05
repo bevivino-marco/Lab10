@@ -72,32 +72,68 @@ public class PortoDAO {
 			throw new RuntimeException("Errore Db");
 		}
 	}
-	public CoAuthor getCoAutori(Map <Integer ,Author> mappaA, Author autore) {
+	public  Map <String, CoAuthor> getCoAutori(Map <Integer ,Author> mappaA, Map <String, CoAuthor> mappaC) {
 
-		final String sql = "SELECT c2.authorid " + 
+		final String sql = "SELECT  DISTINCT c1.authorid, c2.authorid, c1.eprintid " + 
 				"FROM creator AS c1, creator AS c2 " + 
-				"WHERE c1.authorid='?' AND c1.eprintid=c2.eprintid AND c1.authorid!= c2.authorid ";
+				"WHERE  c1.eprintid=c2.eprintid AND c1.authorid != c2.authorid " + 
+				"GROUP BY c1.authorid, c2.authorid";
 		
             
 		try {
-			if (mappaA.containsKey(autore.getId())) {
+			
 			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
-			st.setInt(1, autore.getId());
-            List <Author> listaC = new LinkedList<Author>();
+			
+            
 			ResultSet rs = st.executeQuery();
-
+            int cont =0;
 			while (rs.next()) {
-				if (mappaA.containsKey(rs.getInt("authorid"))) {
-					listaC.add(mappaA.get(rs.getInt("authorid")));
+				Author a1 = mappaA.get(rs.getInt("c1.authorid"));
+				Author a2 = mappaA.get(rs.getInt("c2.authorid"));
+				int idPaper = rs.getInt("c1.eprintid");
+				String id =a1.getId()+""+a2.getId();
+				String idDaControllare =a2.getId()+""+a1.getId();
+				if (!mappaC.containsKey(idDaControllare)) {
+					CoAuthor c = new CoAuthor (a1,a2,id, idPaper);
+					mappaC.put(id, c);
+				//	System.out.println(c.toString());
+				//	cont++;
 				}
 			}
-            CoAuthor c = new CoAuthor (autore, listaC);
-			return c;} else return null;
+			//System.out.println(cont);
+            return mappaC;
 
 		} catch (SQLException e) {
 			 e.printStackTrace();
 			throw new RuntimeException("Errore Db");
+		}
+	}
+
+	public Paper getArticoloInComune(Author autore1, Author autore2, Map <Integer , Paper> mappaP ) {
+		final String sql = "SELECT c1.eprintid " + 
+				"FROM creator AS c1 , creator AS c2 " + 
+				"WHERE c1.authorid='?' AND c2.authorid= '?' AND c1.eprintid=c2.eprintid " + 
+				"GROUP BY c1.eprintid";
+
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, autore1.getId());
+			st.setInt(2, autore2.getId());
+			
+
+			ResultSet rs = st.executeQuery();
+
+			if (rs.next()) {
+                return mappaP.get(rs.getInt("c1.eprintid"));
+			}
+            return null;
+
+		} catch (SQLException e) {
+			// e.printStackTrace();
+			//throw new RuntimeException("Errore Db");
+			return null;
 		}
 	}
 	
